@@ -41,7 +41,7 @@
 )
 
 
-(:action schedule_absolute_first_sub_task
+(:action schedule_absolute_firstsub_task
     :parameters (?m - machine ?t - task  ?ts - time_slice)
     :precondition (and  (absolute_first_task ?t)
                         (not (scheduled ?t))
@@ -55,7 +55,7 @@
                   )
 )
 
-(:action schedule_other_first_sub_tasks
+(:action schedule_other_firstsub_tasks
     :parameters (?m ?pre_machine - machine ?t ?pre_task - task  ?ts ?pre_time_slice - time_slice)
     :precondition (and  (first_sub_task ?t)
                         (not (scheduled ?t))
