@@ -7,6 +7,7 @@ import os
 machines = []
 tasks = []
 time_slices = []
+# intervals = []
 
 class Machine:
     def __init__(self, id : int):
@@ -24,11 +25,12 @@ class TimeSlice:
         return f't_{self.id}'
 
 class Task:
-    def __init__(self, machine : Machine, job_number : int, relative_time : int, absolute_first = False):
+    def __init__(self, machine : Machine, job_number : int, relative_time : int, absolute_first = False, other_first = False):
         self.machine_id = machine.id
         self.job_number = job_number
         self.relative_time = relative_time
         self.absolute_first = absolute_first
+        self.other_first = other_first
     
     def __str__(self) -> str:
         return f'task_{self.job_number}_{self.machine_id}_{self.relative_time}'
@@ -43,18 +45,21 @@ def read_file():
         line = line.rstrip()
         items = line.split()
         number_machines = int(items[0])
-        first_split_task = items[1].split(":")
-        tasks.append(Task(machines[int(first_split_task[0])-1], job_count, 1, True))
-        
-        for i in range(2, int(first_split_task[1])+1):
-            tasks.append(Task(machines[int(first_split_task[0])-1], job_count,i))
 
-        for task in line.split()[2:]:
+        first_split_task = items[1].split(":")
+        
+        tasks.append(Task(machines[int(first_split_task[0])-1], job_count, 0, absolute_first=True))
+
+        for task in line.split()[1:]:
+            i = 1
             split_task = task.split(":")
             machine = int(split_task[0])
             task_count = int(split_task[1])
-            for i in range(1, task_count+1):
+            tasks.append(Task(machines[machine-1], job_count,1, other_first=True))
+            for i in range(2, task_count+1):
                 tasks.append(Task(machines[machine-1], job_count,i))
+            # if i not in intervals:
+            #     intervals.append(i)
         job_count += 1
 
 
@@ -82,22 +87,43 @@ def init(file):
     # task declarations
     previous_task = None
     for task in tasks:
+
         if task.absolute_first:
-            file.write(f'\t(absolute_first_task {task})\n')
-        elif task.relative_time == 1:
+            for time_slice in time_slices:
+                file.write(f'\t(task_precedes_ts {task} {time_slice})\n')
+            file.write(f'\t(scheduled {task})\n')
+            file.write(f'\t(other_first_task {task})\n')
+            file.write(f'\t(task_is_last {previous_task})\n')
+        elif task.other_first:
+            file.write(f'\t(other_first_task {task})\n')
+            file.write(f'\t(task_is_last {previous_task})\n')
+
+
+        if task.relative_time == 1:
             file.write(f'\t(first_sub_task {task})\n')
             if previous_task and task.job_number == previous_task.job_number :
                 file.write(f'\t(task_precedes {previous_task} {task})\n')
-
-        if previous_task and task.job_number == previous_task.job_number and task.relative_time > previous_task.relative_time and task.machine_id == previous_task.machine_id:
+        elif previous_task and task.job_number == previous_task.job_number and task.relative_time > previous_task.relative_time and task.machine_id == previous_task.machine_id:
             file.write(f'\t(task_precedes {previous_task} {task})\n')
-                
+
+            
         file.write(f'\t(is_for {task} {machines[task.machine_id-1]})\n\n')
         previous_task = task
+    
+    file.write(f'\t(task_is_last {previous_task})\n')
+
 
     # time slice declarations
     previous_ts = None
+    #print(intervals)
     for time_slice in time_slices:
+        # for interval in intervals:
+        #     for ts in time_slices:
+        #         ts_end = time_slice.id + interval - 1
+        #         if ts.id < ts_end and ts.id > time_slice.id and ts_end < len(time_slices):
+        #             file.write(f'\t(in_between {time_slice} {time_slices[ts_end]} {ts})\n')
+
+
         if previous_ts:
             file.write(f'\t(adjacent {previous_ts} {time_slice})\n')
         
@@ -116,7 +142,8 @@ def init(file):
 def goal(file):
     file.write("(:goal (and\n")
     for task in tasks:
-        file.write(f'\t(scheduled {task})\n')
+        if not task.absolute_first:
+            file.write(f'\t(scheduled {task})\n')
     file.write("))\n")
 
 
@@ -142,7 +169,8 @@ if __name__  == "__main__":
 
     f.close()
 
-    os.system("./downward/fast-downward.py --alias seq-sat-lama-2011 domain.pddl generated_problem.pddl >/dev/null 2>&1")
+    os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --search 'astar(blind())'")
+    #os.system("./downward/fast-downward.py --alias seq-sat-lama-2011 domain.pddl generated_problem.pddl")
 
 
     last_index = -1
@@ -210,8 +238,8 @@ if __name__  == "__main__":
     
 
     #Cleanup
-    os.system("rm sas_plan*")
-    os.system("rm generated_problem.pddl")
+    # os.system("rm sas_plan*")
+    # os.system("rm generated_problem.pddl")
 
 
 
