@@ -17,6 +17,7 @@
             (first_sub_task ?t - task)
             (adjacent ?ts1 ?ts2 - time_slice)
             (absolute_first_task ?t - task)
+            (last_task ?t - task)
 )
 
 (:functions
@@ -32,6 +33,24 @@
                         (is_for ?task ?m)
                         (not (ts_occupied ?m ?time_slice))
                         (task_precedes ?pre_task ?task)
+                        (not (last_task ?task))
+                        )
+    :effect (and (scheduled ?task) 
+                  (scheduled_for_ts ?m ?task ?time_slice)
+                  (ts_occupied ?m ?time_slice)
+                  )
+)
+
+(:action schedule_last_sub_task
+    :parameters (?m - machine ?task ?pre_task - task  ?time_slice ?pre_time_slice - time_slice)
+    :precondition (and  (not (scheduled ?task))
+                        (scheduled ?pre_task)
+                        (scheduled_for_ts ?m ?pre_task ?pre_time_slice)
+                        (adjacent ?pre_time_slice ?time_slice)
+                        (is_for ?task ?m)
+                        (not (ts_occupied ?m ?time_slice))
+                        (task_precedes ?pre_task ?task)
+                        (last_task ?task)
                         )
     :effect (and (scheduled ?task) 
                   (scheduled_for_ts ?m ?task ?time_slice)
@@ -51,7 +70,6 @@
     :effect (and  (scheduled ?t) 
                   (scheduled_for_ts ?m ?t ?ts)
                   (ts_occupied ?m ?ts)
-                  (increase (total-cost) (end ?ts))
                   )
 )
 
@@ -69,7 +87,6 @@
     :effect (and (scheduled ?t) 
                   (scheduled_for_ts ?m ?t ?ts)
                   (ts_occupied ?m ?ts)
-                  (increase (total-cost) (end ?ts))
                   )
 )
 )
