@@ -1,4 +1,7 @@
 .vscode/
 *.out
 *.o
-sas_plan.*
+sas_plan*
+output.sas
+solution.txt
+generated_problem.pddl
