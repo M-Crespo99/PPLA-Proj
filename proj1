@@ -111,9 +111,7 @@ def init(file):
             ts_end = time_slice.id + task.length
             if ts_end <=  len(time_slices): 
                 file.write(f'\t(tasks_separated_by {task} {time_slice} {time_slices[ts_end - 1]})\n')
-                for ts in time_slices:
-                    if ts.id < ts_end and ts.id > time_slice.id:
-                        file.write(f'\t(in_between {time_slice} {time_slices[ts_end - 1]} {ts})\n')
+
         if previous_ts:
             file.write(f'\t(adjacent {previous_ts} {time_slice})\n')
         
@@ -148,7 +146,10 @@ if __name__  == "__main__":
     for task in tasks:
         sum += task.length
     # Create time slices
-    for i in range(int(sum/2)):
+
+    if(sum > 20):
+        sum = sum/2
+    for i in range(int(sum)):
         time_slices.append(TimeSlice(i))
     
     f = open("generated_problem.pddl", "w")
@@ -163,11 +164,12 @@ if __name__  == "__main__":
     f.close()
 
     search = ""
-    if sum < 20:
+    if False:
         os.system("./downward/fast-downward.py --alias seq-sat-lama-2011 domain.pddl generated_problem.pddl")
         search = "lama"
     else:
         #os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --search 'astar(blind())'")
+        #os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --evaluator 'hff=ff()' --evaluator 'hff2=ff(transform=adapt_costs(plusone))' --evaluator 'hlm2=lmcount(lm_reasonable_orders_hps(lm_rhw()),transform=adapt_costs(plusone),pref=true)' --search 'lazy_wastar([hff2, hlm2), preferred = [hff(), hlm2()], w = 1)'")
         os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --search 'lazy_greedy([ff()], preferred=[ff()])'")
         search = "astar"
 
