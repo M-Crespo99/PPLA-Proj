@@ -163,8 +163,9 @@ if __name__  == "__main__":
 
     f.close()
 
-    os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --search 'astar(blind())'")
+    #os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --search 'astar(blind())'")
     #os.system("./downward/fast-downward.py --alias seq-sat-lama-2011 domain.pddl generated_problem.pddl")
+    os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --search 'lazy_greedy([ff()], preferred=[ff()])'")
 
 
     last_index = -1
