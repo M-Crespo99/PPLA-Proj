@@ -12,9 +12,7 @@
             (task_precedes ?t1 ?t2 - task)
             (ts_precedes ?ts1 ?ts2 - time_slice)
             (ts_occupied ?m - machine ?ts1 - time_slice)
-
-
-(scheduled ?t - task)
+            (scheduled ?t - task)
             (tasks_separated_by ?t - task ?ts1 ?ts2 - time_slice)
             (task_occupies_ts ?t - task ?ts - time_slice)
 )
@@ -32,10 +30,10 @@
                         (not (ts_occupied ?m ?time_slice))
                         (not (task_occupies_ts ?pre_task ?time_slice))
                         (not (exists (?ts - time_slice)
-                                     (or
-                                     (and (ts_precedes ?time_slice ?ts) (ts_occupied ?m ?ts))
-                                     (and (ts_precedes ?time_slice ?ts) (task_occupies_ts ?pre_task ?ts)
-                                     ))
+                            (and (ts_precedes ?time_slice ?ts) (ts_occupied ?m ?ts))
+                        ))
+                        (not (exists (?ts - time_slice)
+                            (and (ts_precedes ?time_slice ?ts) (task_occupies_ts ?pre_task ?ts))
                         ))
                         (task_precedes ?pre_task ?task)
                         )

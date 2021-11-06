@@ -86,11 +86,11 @@ def init(file):
 
         if task.absolute_first:
             file.write(f'\t(scheduled {task})\n')
-            file.write(f'\t(other_first_task {task})\n')
-            file.write(f'\t(task_is_last {previous_task})\n')
-        elif task.other_first:
-            file.write(f'\t(other_first_task {task})\n')
-            file.write(f'\t(task_is_last {previous_task})\n')
+            #file.write(f'\t(other_first_task {task})\n')
+            #file.write(f'\t(task_is_last {previous_task})\n')
+        #elif task.other_first:
+            #file.write(f'\t(other_first_task {task})\n')
+            #file.write(f'\t(task_is_last {previous_task})\n')
 
         if previous_task and task.job_number == previous_task.job_number:
             file.write(f'\t(task_precedes {previous_task} {task})\n')
@@ -99,7 +99,7 @@ def init(file):
         file.write(f'\t(is_for {task} {machines[task.machine_id-1]})\n\n')
         previous_task = task
     
-    file.write(f'\t(task_is_last {previous_task})\n')
+    #file.write(f'\t(task_is_last {previous_task})\n')
 
 
     # time slice declarations
@@ -110,9 +110,14 @@ def init(file):
             if ts_end <=  len(time_slices): 
                 file.write(f'\t(tasks_separated_by {task} {time_slice} {time_slices[ts_end - 1]})\n')
 
-        if previous_ts:
-            file.write(f'\t(adjacent {previous_ts} {time_slice})\n')
+        # if previous_ts:
+        #     file.write(f'\t(adjacent {previous_ts} {time_slice})\n')
         
+        biggest_size = 0
+        for task in tasks:
+            if task.length > biggest_size:
+                biggest_size = task.length
+
         for time_slice_inner in time_slices:
             if time_slice_inner.id > time_slice.id:
                 file.write(f'\t(ts_precedes {time_slice} {time_slice_inner})\n')
@@ -162,7 +167,7 @@ if __name__  == "__main__":
     f.close()
 
     search = ""
-    if False:
+    if True:
         os.system("./downward/fast-downward.py --alias seq-sat-lama-2011 domain.pddl generated_problem.pddl")
         search = "lama"
     else:
