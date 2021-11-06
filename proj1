@@ -85,8 +85,6 @@ def init(file):
     for task in tasks:
 
         if task.absolute_first:
-            for time_slice in time_slices:
-                file.write(f'\t(task_precedes_ts {task} {time_slice})\n')
             file.write(f'\t(scheduled {task})\n')
             file.write(f'\t(other_first_task {task})\n')
             file.write(f'\t(task_is_last {previous_task})\n')
@@ -170,7 +168,7 @@ if __name__  == "__main__":
     else:
         #os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --search 'astar(blind())'")
         #os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --evaluator 'hff=ff()' --evaluator 'hff2=ff(transform=adapt_costs(plusone))' --evaluator 'hlm2=lmcount(lm_reasonable_orders_hps(lm_rhw()),transform=adapt_costs(plusone),pref=true)' --search 'lazy_wastar([hff2, hlm2), preferred = [hff(), hlm2()], w = 1)'")
-        os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --search 'lazy_greedy([ff()], preferred=[ff()])'")
+        os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --search 'lazy_greedy([ff()], preferred=[ff()])' ")
         search = "astar"
 
 
@@ -210,16 +208,17 @@ if __name__  == "__main__":
         if split[0] == "(schedule_middle_sub_task":
             machine_id = int(split[1].split("_")[1])
             job_number = int(split[2].split("_")[1])
-            time_started = int(split[4].replace(")", "").split("_")[1])
+            time_started = int(split[4].split("_")[1])
+            time_ended = int(split[5].replace(")", "").split("_")[1])
+
 
         things[job_number].append([machine_id, time_started])
 
-        if time_started > time_taken:
-            time_taken = time_started
+        if time_ended > time_taken:
+            time_taken = time_ended
 
 
     time_taken += 1
-    print("Length: " + str(sum))
     print(time_taken)
     print(str(len(jobs)) + " " + str(len(machines)))
 
