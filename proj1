@@ -107,13 +107,16 @@ def init(file):
     # time slice declarations
     previous_ts = None
     for time_slice in time_slices:
+        intervals = []
         for task in tasks:
             ts_end = time_slice.id + task.length
             if ts_end <=  len(time_slices): 
                 file.write(f'\t(tasks_separated_by {task} {time_slice} {time_slices[ts_end - 1]})\n')
                 for ts in time_slices:
-                    if ts.id < ts_end and ts.id > time_slice.id:
-                        file.write(f'\t(in_between {time_slice} {time_slices[ts_end - 1]} {ts})\n')
+                    if [time_slices[ts_end - 1], ts] not in intervals:
+                        intervals.append([time_slices[ts_end - 1], ts])
+                        if ts.id < ts_end and ts.id > time_slice.id:
+                            file.write(f'\t(in_between {time_slice} {time_slices[ts_end - 1]} {ts})\n')
         if previous_ts:
             file.write(f'\t(adjacent {previous_ts} {time_slice})\n')
         
@@ -166,7 +169,7 @@ if __name__  == "__main__":
     #os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --search 'astar(blind())'")
     #os.system("./downward/fast-downward.py --alias seq-sat-lama-2011 domain.pddl generated_problem.pddl")
     os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --search 'lazy_greedy([ff()], preferred=[ff()])'")
-    os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --search 'lazy_greedy([hmax(transform=no_transform(), cache_estimates=true)], preferred=[])'")
+    #os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --search 'lazy_greedy([hmax(transform=no_transform(), cache_estimates=true)], preferred=[])'")
 
 
     last_index = -1
