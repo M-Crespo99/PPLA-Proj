@@ -147,9 +147,8 @@ if __name__  == "__main__":
     sum = 0
     for task in tasks:
         sum += task.length
-
     # Create time slices
-    for i in range(int(sum*0.75)):
+    for i in range(int(sum/2)):
         time_slices.append(TimeSlice(i))
     
     f = open("generated_problem.pddl", "w")
@@ -163,19 +162,28 @@ if __name__  == "__main__":
 
     f.close()
 
-    #os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --search 'astar(blind())'")
-    #os.system("./downward/fast-downward.py --alias seq-sat-lama-2011 domain.pddl generated_problem.pddl")
-    os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --search 'lazy_greedy([ff()], preferred=[ff()])'")
+    search = ""
+    if sum < 20:
+        os.system("./downward/fast-downward.py --alias seq-sat-lama-2011 domain.pddl generated_problem.pddl")
+        search = "lama"
+    else:
+        #os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --search 'astar(blind())'")
+        os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --search 'lazy_greedy([ff()], preferred=[ff()])'")
+        search = "astar"
 
 
     last_index = -1
-    for file in os.listdir():
-        if file.find("sas_plan") != -1:
-            split = file.split(".")
-            if int(split[1]) > last_index:
-                last_index = int(split[1])
+    if search == "lama":
+        for file in os.listdir():
+            if file.find("sas_plan") != -1:
+                split = file.split(".")
+                if int(split[1]) > last_index:
+                    last_index = int(split[1])
     
-    f = open("sas_plan." + str(last_index), "r")
+    if(search == "lama"):
+        f = open("sas_plan." + str(last_index), "r")
+    else:
+        f = open("sas_plan", "r")
     
   
     jobs = []
@@ -187,25 +195,20 @@ if __name__  == "__main__":
     
     f.close()
 
-    f = open("sas_plan." + str(last_index), "r")
+    if(search == "lama"):
+        f = open("sas_plan." + str(last_index), "r")
+    else:
+        f = open("sas_plan", "r")
 
     things = defaultdict(list)
 
     time_taken = -1
     for line in f:
         split = line.split()
-        if split[0] == "(schedule_absolute_firstsub_task":
-            machine_id = int(split[1].split("_")[1])
-            job_number = int(split[2].split("_")[1])
-            time_started = int(split[3].split("_")[1][:-1])
-        if split[0] == "(schedule_other_firstsub_tasks":
-            machine_id = int(split[1].split("_")[1])
-            job_number = int(split[3].split("_")[1])
-            time_started = int(split[5].split("_")[1])
         if split[0] == "(schedule_middle_sub_task":
             machine_id = int(split[1].split("_")[1])
             job_number = int(split[2].split("_")[1])
-            time_started = int(split[4].split("_")[1])
+            time_started = int(split[4].replace(")", "").split("_")[1])
 
         things[job_number].append([machine_id, time_started])
 
@@ -214,6 +217,7 @@ if __name__  == "__main__":
 
 
     time_taken += 1
+    print("Length: " + str(sum))
     print(time_taken)
     print(str(len(jobs)) + " " + str(len(machines)))
 
