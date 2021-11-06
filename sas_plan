@@ -1,0 +1,7 @@
+(schedule_middle_sub_task m_1 task_1_1 task_1_0 t_0 t_1)
+(schedule_middle_sub_task m_2 task_1_2 task_1_1 t_2 t_2)
+(schedule_middle_sub_task m_1 task_3_1 task_3_0 t_2 t_3)
+(schedule_middle_sub_task m_1 task_2_1 task_2_0 t_4 t_6)
+(schedule_middle_sub_task m_2 task_3_2 task_3_1 t_4 t_6)
+(schedule_middle_sub_task m_2 task_2_2 task_2_1 t_7 t_7)
+; cost = 31 (general cost)
