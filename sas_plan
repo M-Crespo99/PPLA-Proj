@@ -1,8 +1,0 @@
-(schedule_middle_sub_task m_3 task_2_3 task_2_0 t_0 t_9)
-(schedule_middle_sub_task m_4 task_3_4 task_3_0 t_0 t_17)
-(schedule_middle_sub_task m_4 task_2_4 task_2_3 t_18 t_34)
-(schedule_middle_sub_task m_1 task_1_1 task_1_0 t_0 t_10)
-(schedule_middle_sub_task m_2 task_5_2 task_5_0 t_0 t_11)
-(schedule_middle_sub_task m_2 task_4_2 task_4_0 t_12 t_21)
-(schedule_middle_sub_task m_3 task_5_3 task_5_2 t_12 t_23)
-; cost = 132 (general cost)
