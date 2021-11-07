@@ -164,7 +164,7 @@ if __name__  == "__main__":
     f.close()
 
     search = ""
-    if False:
+    if sum < 20:
         os.system("./downward/fast-downward.py --alias seq-sat-lama-2011 domain.pddl generated_problem.pddl")
         search = "lama"
     else:
