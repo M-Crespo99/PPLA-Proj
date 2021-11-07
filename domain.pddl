@@ -27,7 +27,7 @@
     (end ?ts - time_slice)- number 
     (total-cost) - number   
 )
-(:action schedule_middle_sub_task
+(:action schedule
     :parameters (?m - machine ?task ?pre_task - task  ?time_slice ?end_time_slice - time_slice)
     :precondition (and  (not (scheduled ?task))
                         (tasks_separated_by ?task ?time_slice ?end_time_slice)
