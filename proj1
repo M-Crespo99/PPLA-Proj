@@ -142,7 +142,13 @@ def metric(file):
     file.write("(:metric minimize (total-cost))\n)")
 
 
+def write_domain():
+    f = open("domain.pddl", "w")
+    f.write("(define (domain job_schedule_domain) \n\t(:requirements :adl :action-costs :existential-preconditions) \n\t(:types task machine time_slice) \n\t(:predicates  \n\t\t(is_for ?t - task ?m - machine) \n\t\t(task_precedes ?t1 ?t2 - task) \n\t\t(ts_precedes ?ts1 ?ts2 - time_slice) \n\t\t(ts_occupied ?m - machine ?ts1 - time_slice) \n\t\t(scheduled ?t - task) \n\t\t(tasks_separated_by ?t - task ?ts1 ?ts2 - time_slice) \n\t\t(task_occupies_ts ?t - task ?ts - time_slice) ) \n\t(:functions     \n\t\t(end ?ts - time_slice)- number      \n\t\t(total-cost) - number    ) \n\t(:action schedule_middle_sub_task\n\t\t:parameters (?m - machine ?task ?pre_task - task  ?time_slice ?end_time_slice - time_slice)\n\t\t:precondition (and  \n\t\t\t\t(not (scheduled ?task))\n\t\t\t\t(tasks_separated_by ?task ?time_slice ?end_time_slice)\n\t\t\t\t(scheduled ?pre_task)\n\t\t\t\t(is_for ?task ?m)\n\t\t\t\t(not (ts_occupied ?m ?time_slice))\n\t\t\t\t(not (task_occupies_ts ?pre_task ?time_slice))\n\t\t\t\t(not (exists (?ts - time_slice)\n\t\t\t\t\t(and (ts_precedes ?time_slice ?ts) (ts_occupied ?m ?ts))\n\t\t\t\t))\n\t\t\t\t(not (exists (?ts - time_slice)\n\t\t\t\t\t(and (ts_precedes ?time_slice ?ts) (task_occupies_ts ?pre_task ?ts))\n\t\t\t\t))\n\t\t\t\t(task_precedes ?pre_task ?task)\n\t\t\t\t)     \n\t:effect (and\n\t\t\t\t (scheduled ?task)\n\t\t\t\t(ts_occupied ?m ?time_slice)\n\t\t\t\t(ts_occupied ?m ?end_time_slice)\n\t\t\t\t(task_occupies_ts ?task ?time_slice)\n\t\t\t\t(task_occupies_ts ?task ?end_time_slice)\n\t\t\t\t(increase (total-cost) (end ?end_time_slice))\n\t\t\t\t)))")
+    f.close()
 if __name__  == "__main__":
+    write_domain()
+
     read_file()
 
     sum = 0
@@ -151,7 +157,11 @@ if __name__  == "__main__":
     # Create time slices
 
     if(sum > 20):
-        sum = sum/2
+        if len(machines) > 7:
+            sum = sum * 0.5
+        else:
+            sum = sum*0.75
+
     for i in range(int(sum)):
         time_slices.append(TimeSlice(i))
     
@@ -168,7 +178,7 @@ if __name__  == "__main__":
 
     search = ""
     if sum < 20:
-        os.system("./downward/fast-downward.py --alias seq-sat-lama-2011 domain.pddl generated_problem.pddl")
+        os.system("./downward/fast-downward.py --alias seq-sat-lama-2011 domain.pddl generated_problem.pddl > /dev/null 2>&1 ")
         search = "lama"
     else:
         #os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --search 'astar(blind())'")
@@ -240,11 +250,12 @@ if __name__  == "__main__":
         for key, value in start_times.items():
             sys.stdout.write(str(key) + ":" + str(value) + " ")
         sys.stdout.write("\n")
-    
+    f.close()    
 
     #Cleanup
-    # os.system("rm sas_plan*")
-    # os.system("rm generated_problem.pddl")
+    os.system("rm sas_plan*")
+    os.system("rm generated_problem.pddl")
+    #os.system("rm domain.pddl")
 
 
 
