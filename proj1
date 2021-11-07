@@ -71,6 +71,9 @@ def objects(file):
 
     for task in tasks:
         file.write(str(task) + " ")
+
+    # Null task
+    file.write(" task_null ")
     file.write("- task\n\t")
 
     for time_slice in time_slices:
@@ -84,56 +87,51 @@ def objects(file):
 def init(file):
     file.write("(:init\n")
 
+    file.write("\t(task_is_null task_null)\n")
     # task declarations
     previous_task = None
     for task in tasks:
 
         if task.absolute_first:
-            for time_slice in time_slices:
-                file.write(f'\t(task_precedes_ts {task} {time_slice})\n')
             file.write(f'\t(scheduled {task})\n')
-            file.write(f'\t(other_first_task {task})\n')
-            file.write(f'\t(task_is_last {previous_task})\n')
+            file.write(f'\t(task_is_first {task})\n')
         elif task.other_first:
-            file.write(f'\t(other_first_task {task})\n')
-            file.write(f'\t(task_is_last {previous_task})\n')
+            file.write(f'\t(task_is_first {task})\n')
+        else:
+            file.write(f'\t(task_is_middle {task})\n')
 
-
-        if task.relative_time == 1:
-            file.write(f'\t(first_sub_task {task})\n')
-            if previous_task and task.job_number == previous_task.job_number :
-                file.write(f'\t(task_precedes {previous_task} {task})\n')
-        elif previous_task and task.job_number == previous_task.job_number and task.relative_time > previous_task.relative_time and task.machine_id == previous_task.machine_id:
-            file.write(f'\t(task_precedes {previous_task} {task})\n')
+        # if task.relative_time == 1:
+        #     file.write(f'\t(first_sub_task {task})\n')
+        #     if previous_task and task.job_number == previous_task.job_number :
+        #         file.write(f'\t(task_precedes {previous_task} {task})\n')
+        if previous_task and task.job_number == previous_task.job_number:
+            file.write(f'\t(task_adjacent {previous_task} {task})\n')
 
             
         file.write(f'\t(is_for {task} {machines[task.machine_id-1]})\n\n')
         previous_task = task
     
-    file.write(f'\t(task_is_last {previous_task})\n')
-
-
     # time slice declarations
-    previous_ts = None
-    #print(intervals)
-    for time_slice in time_slices:
-        # for interval in intervals:
-        #     for ts in time_slices:
-        #         ts_end = time_slice.id + interval - 1
-        #         if ts.id < ts_end and ts.id > time_slice.id and ts_end < len(time_slices):
-        #             file.write(f'\t(in_between {time_slice} {time_slices[ts_end]} {ts})\n')
+    # previous_ts = None
+    # #print(intervals)
+    # for time_slice in time_slices:
+    #     # for interval in intervals:
+    #     #     for ts in time_slices:
+    #     #         ts_end = time_slice.id + interval - 1
+    #     #         if ts.id < ts_end and ts.id > time_slice.id and ts_end < len(time_slices):
+    #     #             file.write(f'\t(in_between {time_slice} {time_slices[ts_end]} {ts})\n')
 
 
-        if previous_ts:
-            file.write(f'\t(adjacent {previous_ts} {time_slice})\n')
+    #     if previous_ts:
+    #         file.write(f'\t(adjacent {previous_ts} {time_slice})\n')
         
-        for time_slice_inner in time_slices:
-            if time_slice_inner.id > time_slice.id:
-                file.write(f'\t(ts_precedes {time_slice} {time_slice_inner})\n')
+    #     for time_slice_inner in time_slices:
+    #         if time_slice_inner.id > time_slice.id:
+    #             file.write(f'\t(ts_precedes {time_slice} {time_slice_inner})\n')
             
-        file.write(f'\t(=(end {time_slice}) {time_slice.end})\n\n')
+    #     file.write(f'\t(=(end {time_slice}) {time_slice.end})\n\n')
 
-        previous_ts = time_slice
+    #     previous_ts = time_slice
 
     file.write("\t(=(total_cost) 0)\n")
     file.write(")\n")
@@ -148,7 +146,7 @@ def goal(file):
 
 
 def metric(file):
-    file.write("(:metric minimize (total-cost))\n)")
+    file.write("(:metric minimize (total-cost) ) )\n")
 
 
 if __name__  == "__main__":
