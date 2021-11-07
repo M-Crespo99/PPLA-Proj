@@ -178,12 +178,10 @@ if __name__  == "__main__":
 
     search = ""
     if sum < 20:
-        os.system("./downward/fast-downward.py --alias seq-sat-lama-2011 domain.pddl generated_problem.pddl > /dev/null 2>&1 ")
+        os.system("./fast-downward.py --alias seq-sat-lama-2011 domain.pddl generated_problem.pddl > /dev/null 2>&1 ")
         search = "lama"
     else:
-        #os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --search 'astar(blind())'")
-        #os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --evaluator 'hff=ff()' --evaluator 'hff2=ff(transform=adapt_costs(plusone))' --evaluator 'hlm2=lmcount(lm_reasonable_orders_hps(lm_rhw()),transform=adapt_costs(plusone),pref=true)' --search 'lazy_wastar([hff2, hlm2), preferred = [hff(), hlm2()], w = 1)'")
-        os.system("./downward/fast-downward.py domain.pddl generated_problem.pddl --search 'lazy_greedy([ff()], preferred=[ff()])' > /dev/null 2>&1 ")
+        os.system("./fast-downward.py domain.pddl generated_problem.pddl --search 'lazy_greedy([ff()], preferred=[ff()])' > /dev/null 2>&1 ")
         search = "astar"
 
 
