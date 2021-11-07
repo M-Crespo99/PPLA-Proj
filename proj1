@@ -149,7 +149,7 @@ if __name__  == "__main__":
         sum += task.length
 
     if(sum > 20):
-        sum = sum/2
+        sum = sum*0.75
     for i in range(int(sum)):
         time_slices.append(TimeSlice(i))
 
